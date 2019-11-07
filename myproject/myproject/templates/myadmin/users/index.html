@@ -1,0 +1,78 @@
+{% extends "myadmin/base.html" %}
+
+{% block mainbody %} {# 加载信息提示 #}
+<div class="span9">
+    <h2>
+        会员信息浏览
+    </h2>
+    <form class="form-inline" action="{% url 'myadmin_users_index' 1 %}" method="get">
+        <label>关键字:</label>
+        <input type="text" name="username" value="{{ request.GET.keyword}}" placeholder="账户/姓名" class="input-small"/>
+        <!--下拉框-->
+        <label>&nbsp;性别：</label>
+        <select name="sex" class="span1">
+            <!--selected默认选中-->
+            <option value="">全部</option>
+            <!--option选择项-->
+            <option value="1" {% if request.GET.sex == '1' %}selected{% endif %}>男</option>
+            <option value="0" {% if request.GET.sex == '0' %}selected{% endif %}>女</option>
+        </select>
+        <button type="submit" class="btn">搜索</button>
+        <a href="{% url 'myadmin_users_index' 1 %}" class="btn">全部</a>
+    </form>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>id号</th> <!--添加属性-->
+                <th>账号</th>
+                <th>姓名</th>
+                <th>性别</th>
+                <th>邮箱</th>
+                <th>注册时间</th>
+                <th>状态</th>
+                <th>操作</th>
+        </thead>
+        <tbody> <!--去掉多余部分-->
+            {% for vo in userlist %}
+            <tr>
+                <td>{{ vo.id }}</td>
+                <td>{{ vo.username }}</td>
+                <td>{{ vo.name }}</td>
+                <td>{% if vo.sex == 1 %}男{% else %}女{% endif %}</td> <!--给性别添加判断-->
+                <td>{{ vo.email }}</td>
+                <td>{{ vo.addtime }}</td>
+                <td>
+                    {% if vo.state == 0 %}
+                        <span style="color: green">管理员</span>
+                    {% elif vo.state == 1 %}
+                        普通用户
+                    {% else %}
+                        <span style="color: red">禁用用户</span>
+                    {% endif %}
+                </td> <!--给状态添加判断-->
+                <td>
+                    <a href="{% url 'myadmin_users_reset' vo.id %}" class="btn btn-mini btn-success">重置密码</a>
+                    <a href="{% url 'myadmin_users_edit' vo.id %}" class="btn btn-mini btn-primary">编辑</a><!--添加编辑页面的载入-->
+                    <a href="{% url 'myadmin_users_del' vo.id %}" class="btn btn-mini btn-danger">删除</a><!--添加删除方法名，传id号-->
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div class="pagination">
+        <ul>
+            <li>
+                <a href="{% url 'myadmin_users_index' pIndex|add:-1 %}?{{ mywhere|join:'&' }}">&laquo;</a>
+            </li>
+            {% for p in plist %}
+                <li {% if pIndex == p %}class="active"{% endif %}>
+                    <a href="{% url 'myadmin_users_index' p %}?{{ mywhere|join:'&' }}">{{ p }}</a>
+                </li>
+            {% endfor %}
+            <li>
+                <a href="{% url 'myadmin_users_index' pIndex|add:1 %}?{{ mywhere|join:'&' }}">&raquo;</a>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
